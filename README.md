@@ -3,7 +3,7 @@
 [![NPM](https://img.shields.io/npm/v/@paymoapp/electron-shutdown-handler)](https://www.npmjs.com/package/@paymoapp/electron-shutdown-handler)
 [![Typescript](https://img.shields.io/npm/types/@paymoapp/electron-shutdown-handler)](https://www.npmjs.com/package/@paymoapp/electron-shutdown-handler)
 [![N-API](https://raw.githubusercontent.com/nodejs/abi-stable-node/doc/assets/Node-API%20v6%20Badge.svg)](https://github.com/nodejs/node-addon-api)
-[![License](https://img.shields.io/github/license/paymoapp/electron-shutdown-handler)](https://www.gnu.org/licenses/gpl-3.0.txt)
+[![License](https://img.shields.io/github/license/paymo-org/electron-shutdown-handler)](https://raw.githubusercontent.com/paymo-org/electron-shutdown-handler/refs/heads/master/LICENSE)
 
 NodeJS library using native modules to capture the shutdown events on Windows in Electron applications.
 

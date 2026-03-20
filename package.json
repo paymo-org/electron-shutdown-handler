@@ -35,7 +35,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paymoapp/electron-shutdown-handler.git"
+    "url": "git+https://github.com/paymo-org/electron-shutdown-handler.git"
   },
   "keywords": [
     "electron",
@@ -46,9 +46,9 @@
   "author": "Paymo LLC",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/paymoapp/electron-shutdown-handler/issues"
+    "url": "https://github.com/paymo-org/electron-shutdown-handler/issues"
   },
-  "homepage": "https://github.com/paymoapp/electron-shutdown-handler#readme",
+  "homepage": "https://github.com/paymo-org/electron-shutdown-handler#readme",
   "devDependencies": {
     "@types/node": "^18.7.14",
     "@typescript-eslint/eslint-plugin": "^5.36.1",

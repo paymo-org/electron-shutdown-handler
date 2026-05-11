@@ -13,6 +13,9 @@ concurrency:
   group: electron-shutdown-handler-deploy
   cancel-in-progress: false
 
+env:
+  NODE_VERSION: '18'
+
 jobs:
   lint:
     name: Lint
@@ -21,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run lint
@@ -33,73 +36,77 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run typecheck
 
-  create-release:
-    name: Create GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+  build-addon:
+    name: Build addon (${{ matrix.name }})
     needs: [lint, typecheck]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            os: windows-latest
+            prebuild_args: '--arch x64'
+          - name: windows-ia32
+            os: windows-latest
+            prebuild_args: '--arch ia32'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Prebuild and upload to GitHub Release
+        shell: bash
+        run: npm run prebuild -- ${{ matrix.prebuild_args }} --upload ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish
+    needs: [lint, typecheck, build-addon]
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci --ignore-scripts
+      - run: npm run build:ts
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Extract changelog for this tag
         id: changelog
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          LAST_RELEASE="$(git describe --abbrev=0 --tags "${TAG}^")"
-          CHANGELOG="$(git diff -U0 "$LAST_RELEASE" "$TAG" CHANGELOG.md \
-            | grep -E '^\+' \
-            | grep -vE '^\+\+\+' \
-            | grep -vE '^\+#+ \[' \
-            | sed 's/^\+//')"
+          PREV_TAG="$(git describe --abbrev=0 --tags "${TAG}^")"
           {
-            echo "body<<__CHANGELOG_EOF__"
-            echo "$CHANGELOG"
-            echo "__CHANGELOG_EOF__"
+            echo 'body<<__CHANGELOG_EOF__'
+            git diff -U0 "$PREV_TAG" "$TAG" -- CHANGELOG.md \
+              | grep -E '^\+' \
+              | grep -vE '^\+\+\+' \
+              | grep -vE '^\+#+ \[' \
+              | sed 's/^\+//'
+            echo '__CHANGELOG_EOF__'
           } >> "$GITHUB_OUTPUT"
-
-      - name: Create release
+      - name: Update GitHub Release with changelog
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.body }}
-
-  build-windows-prebuilds:
-    name: Build Windows prebuilds
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [create-release]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - run: npm run prebuild -- --arch x64 --upload ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run prebuild -- --arch ia32 --upload ${{ secrets.GITHUB_TOKEN }}
-
-  publish-npm:
-    name: Publish to npm
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-windows-prebuilds]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci --ignore-scripts
-      - run: npm run build:ts
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          prerelease: ${{ contains(github.ref_name, '-') }}

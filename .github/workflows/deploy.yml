@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: electron-shutdown-handler-deploy
+  cancel-in-progress: false
+
 jobs:
   lint:
     name: Lint

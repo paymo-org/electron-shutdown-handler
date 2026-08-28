@@ -1,32 +1,36 @@
 import { EventEmitter } from 'node:events';
 
-import { Addon } from './types';
-
-const SUPPORTED_PLATFORMS = ['win32'];
-
-let addon: Addon | null = null;
-
-if (SUPPORTED_PLATFORMS.includes(process.platform)) {
-	addon = require('../build/Release/PaymoWinShutdownHandler.node'); // eslint-disable-line import/no-dynamic-require
-}
+import addon from './addon.js';
 
 class ElectronShutdownHandlerClass extends EventEmitter {
+	private static readonly SHUTDOWN_EVENT = 'shutdown';
+
 	constructor() {
 		super();
 
 		this.on('newListener', (event: string) => {
-			if (event == 'shutdown' && this.listenerCount('shutdown') == 0) {
+			if (
+				event == ElectronShutdownHandlerClass.SHUTDOWN_EVENT &&
+				this.listenerCount(
+					ElectronShutdownHandlerClass.SHUTDOWN_EVENT
+				) == 0
+			) {
 				// create native listener
 				if (addon) {
 					addon.insertWndProcHook(() => {
-						this.emit('shutdown');
+						this.emit(ElectronShutdownHandlerClass.SHUTDOWN_EVENT);
 					});
 				}
 			}
 		});
 
 		this.on('removeListener', (event: string) => {
-			if (event == 'shutdown' && this.listenerCount('shutdown') == 0) {
+			if (
+				event == ElectronShutdownHandlerClass.SHUTDOWN_EVENT &&
+				this.listenerCount(
+					ElectronShutdownHandlerClass.SHUTDOWN_EVENT
+				) == 0
+			) {
 				// remove native listener
 				if (addon) {
 					addon.removeWndProcHook();

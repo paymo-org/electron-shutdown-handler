@@ -34,11 +34,11 @@ npm install --save @paymoapp/electron-shutdown-handler
 
 This project uses NodeJS Native Addons to function, so you can use this library in any NodeJS or Electron project, there won't be any problem with bundling and code signing.
 
-The project uses [prebuild](https://github.com/prebuild/prebuild) to supply prebuilt libraries.
+The project uses [prebuildify](https://github.com/prebuild/prebuildify) to supply prebuilt libraries: binaries for Windows x64 and arm64 are bundled inside the npm package, and [node-gyp-build](https://github.com/prebuild/node-gyp-build) loads the right one at runtime. Nothing is downloaded or compiled during installation.
 
 The project uses Node-API version 6, you can check [this table](https://nodejs.org/api/n-api.html#node-api-version-matrix) to see which node versions are supported.
 
-If there's a compliant prebuilt binary, it will be downloaded during installation, or it will be built. You can also rebuild it anytime by running `npm run build:gyp`.
+You can also rebuild the addon from source anytime by running `npx hereby build:gyp` (or `npm run build` to build both the native addon and the TypeScript sources).
 
 The library has native addons for Windows only, but it won't fail during install or during runtime on other platforms.
 

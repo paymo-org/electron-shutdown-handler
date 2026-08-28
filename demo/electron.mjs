@@ -1,5 +1,5 @@
-const { app, BrowserWindow } = require('electron');
-const ShutdownHandler = require('../dist').default;
+import { app, BrowserWindow } from 'electron';
+import ShutdownHandler from '@paymoapp/electron-shutdown-handler'
 
 app.whenReady().then(() => {
 	const win = new BrowserWindow({
@@ -15,7 +15,7 @@ app.whenReady().then(() => {
 	console.log('PID =', process.pid);
 	console.log('You can use rmlogotest.exe <PID> to "simulate" a shutdown');
 	console.log(
-		'You can close this app by executing Ctrl+C in the terminal or shutting down your system'
+		'You can close this app by pressing Ctrl+C in the terminal or shutting down your system'
 	);
 
 	let allowQuit = false;

@@ -1,7 +1,12 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.0](https://github.com/paymo-org/electron-shutdown-handler/compare/v1.1.3...v1.2.0) (2026-08-28)
+
+### Features
+
+* Added both MJS and CJS builds, modernized tooling ([d673b47](https://github.com/paymo-org/electron-shutdown-handler/commit/d673b47875a6d1c4fea56ca3e5d57d699dde4e1f))
 ### [1.1.3](https://github.com/paymo-org/electron-shutdown-handler/compare/v1.1.2...v1.1.3) (2026-03-20)
 
 
